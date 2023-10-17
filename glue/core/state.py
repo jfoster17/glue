@@ -1200,10 +1200,26 @@ def _load_numpy(rec, context):
     return np.load(s)
 
 
+def ensure_not_object_array(arr):
+    """
+    Attempt to cast object arrays to strings.
+
+    We cannot reload object arrays using
+    np.load() so this way we either cast the
+    array into a serializiable form or we
+    raise an exception that the user gets
+    when saving a session (rather than when
+    they attempt to load an invalid session).
+    """
+    if arr.dtype == object:
+        return arr.astype(str)
+    return arr
+
+
 @saver(np.ndarray)
 def _save_numpy(obj, context):
     f = BytesIO()
-    np.save(f, obj)
+    np.save(f, ensure_not_object_array(obj))
     data = b64encode(f.getvalue()).decode('ascii')
     return dict(data=data)
 
