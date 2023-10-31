@@ -1356,6 +1356,8 @@ def _load_regiondata(rec, context):
 
     label = rec["label"]
     result = RegionData(label=label)
+    if 'coords' in rec:
+        result.coords = context.object(rec['coords'])
 
     # we manually rebuild pixel/world components, so
     # we override this function. This is pretty ugly
@@ -1366,7 +1368,6 @@ def _load_regiondata(rec, context):
     for icomp, (cid, comp) in enumerate(comps):
         if isinstance(comp, CoordinateComponent):
             comp._data = result
-
             # For backward compatibility, we need to check for cases where
             # the component ID for the pixel components was not a PixelComponentID
             # and upgrade it to one. This can be removed once we no longer
